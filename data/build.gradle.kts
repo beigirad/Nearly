@@ -27,4 +27,10 @@ dependencies {
     kapt(Libraries.daggerCompiler)
 
     implementation(project(Modules.domain))
+
+
+    // for cache
+    implementation(Libraries.room)
+    kapt(Libraries.roomCompiler)
+    implementation(Libraries.roomRx)
 }
