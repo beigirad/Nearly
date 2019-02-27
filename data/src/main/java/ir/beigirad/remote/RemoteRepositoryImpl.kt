@@ -9,6 +9,7 @@ import ir.beigirad.data.repository.RemoteRepository
 import ir.beigirad.remote.mapper.VenueDetailMapper
 import ir.beigirad.remote.mapper.VenueMapper
 import ir.beigirad.remote.service.ApiService
+import ir.beigirad.remote.utils.ConnectivityHelper
 import ir.beigirad.remote.utils.HttpErrorHandler
 import ir.beigirad.remote.utils.NetworkErrorHandler
 import javax.inject.Inject
@@ -20,10 +21,14 @@ import javax.inject.Inject
 class RemoteRepositoryImpl @Inject constructor(
     private val api: ApiService,
     private val venueMapper: VenueMapper,
-    private val venueDetailMapper: VenueDetailMapper
+    private val venueDetailMapper: VenueDetailMapper,
+
+    private val context: Context
 ) : RemoteRepository {
     override fun isOnline(): Single<Boolean> {
-
+        return Single.fromCallable {
+            ConnectivityHelper.isConnectedToNetwork(context)
+        }
     }
 
     override fun getVenues(currentLatLng: Pair<Double, Double>): Observable<List<VenueEntity>> {
