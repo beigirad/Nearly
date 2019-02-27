@@ -12,8 +12,8 @@ interface PreferencesRepository {
 
     fun saveCacheTime(timeMillisecond: Long): Completable
 
-    fun getCurrentLocation(): Pair<Double, Double>
+    fun getCurrentLocation(): Single<Pair<Double, Double>>
 
-    fun saveCurrentLocation(currentLatLng: Pair<Double, Double>)
+    fun saveCurrentLocation(currentLatLng: Pair<Double, Double>): Completable
 
 }
