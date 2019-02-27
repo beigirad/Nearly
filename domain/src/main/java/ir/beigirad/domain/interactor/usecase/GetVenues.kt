@@ -14,8 +14,12 @@ class GetVenues @Inject constructor(
     private val repository: NearlyRepository,
     postExecutionThread: PostExecutionThread
 ) :
-    ObservableUseCase<List<Venue>, Pair<Double, Double>>(postExecutionThread) {
-    override fun buildUseCaseObservable(currectLatLng: Pair<Double, Double>): Observable<List<Venue>> {
-        return repository.getVenues(currectLatLng)
+    ObservableUseCase<List<Venue>, GetVenues.Param>(postExecutionThread) {
+    override fun buildUseCaseObservable(params: GetVenues.Param): Observable<List<Venue>> {
+        return repository.getVenues(params.currentLatLng)
     }
+
+    data class Param(
+        val currentLatLng: Pair<Double, Double>
+    )
 }

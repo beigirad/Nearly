@@ -14,8 +14,12 @@ class GetVenueDetail @Inject constructor(
     private val repository: NearlyRepository,
     postExecutionThread: PostExecutionThread
 ) :
-    ObservableUseCase<VenueDetail, String>(postExecutionThread) {
-    override fun buildUseCaseObservable(venueId: String): Observable<VenueDetail> {
-        return repository.getVenueDetail(venueId)
+    ObservableUseCase<VenueDetail, GetVenueDetail.Param>(postExecutionThread) {
+    override fun buildUseCaseObservable(params: Param): Observable<VenueDetail> {
+        return repository.getVenueDetail(params.venueId)
     }
+
+    class Param(
+        val venueId: String
+    )
 }
