@@ -33,4 +33,13 @@ dependencies {
     implementation(Libraries.room)
     kapt(Libraries.roomCompiler)
     implementation(Libraries.roomRx)
+
+
+    // for remote
+    implementation(Libraries.okhttp)
+    implementation(Libraries.retrofit)
+    implementation(Libraries.gsonConverter)
+    implementation(Libraries.rxjavaAdapter)
+    implementation(Libraries.chuckInterceptor)
+    implementation(Libraries.stethoInterceptor)
 }
