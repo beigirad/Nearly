@@ -14,7 +14,7 @@ interface CacheRepository {
 
     fun clearVenues(): Completable
 
-    fun getVenues(currentLatLng: Pair<Double, Double>): Observable<List<VenueEntity>>
+    fun getVenues(): Observable<List<VenueEntity>>
 
     fun isCachedVenues(): Single<Boolean>
 
