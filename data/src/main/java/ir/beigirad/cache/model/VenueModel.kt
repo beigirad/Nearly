@@ -18,7 +18,7 @@ class VenueModel(
     val latLng: Pair<Double, Double>,
     val address: String?,
     val distance: Int,
-    val categoryId: String,
-    val catIcon: String,
-    val catTitle: String
+    val categoryId: String?,
+    val catIcon: String?,
+    val catTitle: String?
 )
