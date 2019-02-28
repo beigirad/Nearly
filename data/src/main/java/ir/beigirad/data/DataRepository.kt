@@ -52,7 +52,9 @@ class DataRepository @Inject constructor(
                     if (!factory.isFromCache(status.first, status.second, status.third))
                         cache.saveVenuesList(it)
                             .doOnComplete {
-                                preferences.saveCacheTime(System.currentTimeMillis())
+                                preferences.saveCacheTime(System.currentTimeMillis()).subscribe()
+                                //TODO did not handle search cache location!
+                                preferences.saveCurrentLocation(locationLatLng).subscribe()
                             }
                             .subscribe()
                 }
