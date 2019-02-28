@@ -40,6 +40,6 @@ dependencies {
     implementation(Libraries.retrofit)
     implementation(Libraries.gsonConverter)
     implementation(Libraries.rxjavaAdapter)
-    implementation(Libraries.chuckInterceptor)
+//    implementation(Libraries.chuckInterceptor)
     implementation(Libraries.stethoInterceptor)
 }

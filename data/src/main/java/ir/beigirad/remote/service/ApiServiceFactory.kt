@@ -4,7 +4,6 @@ import android.content.Context
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.readystatesoftware.chuck.ChuckInterceptor
 import ir.beigirad.remote.utils.AuthenticationInterceptor
 import ir.beigirad.remote.utils.Const
 import okhttp3.OkHttpClient
@@ -15,10 +14,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 class ApiServiceFactory {
 
     fun makeRemoteService(isDebug: Boolean, context: Context): ApiService {
-        val chuckInterceptor = makeChuckInterceptor(isDebug, context)
         val stethoInterceptor = StethoInterceptor()
         val authenticationInterceptor = makeAuthenticationInterceptor()
-        val okHttpClient = makeOkHttpClient(chuckInterceptor, stethoInterceptor, authenticationInterceptor)
+        val okHttpClient = makeOkHttpClient(stethoInterceptor, authenticationInterceptor)
         val gson = makeGson()
         return makeRemoteService(okHttpClient, gson)
     }
@@ -40,22 +38,15 @@ class ApiServiceFactory {
     }
 
     private fun makeOkHttpClient(
-        interceptor: ChuckInterceptor,
         stetho: StethoInterceptor,
         auth: AuthenticationInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(auth)
             .addInterceptor(stetho)
-            .addInterceptor(interceptor)
 //            .connectTimeout(30, TimeUnit.SECONDS)
 //            .readTimeout(30, TimeUnit.SECONDS)
             .build()
-    }
-
-    private fun makeChuckInterceptor(isDebug: Boolean, context: Context): ChuckInterceptor {
-        return ChuckInterceptor(context)
-            .showNotification(isDebug)
     }
 
     private fun makeAuthenticationInterceptor(): AuthenticationInterceptor {
