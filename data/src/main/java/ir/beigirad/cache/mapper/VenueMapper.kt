@@ -24,7 +24,7 @@ class VenueMapper @Inject constructor() : CacheMapper<VenueModel, VenueEntity> {
                     title = cache.catTitle
                 ) else null,
             location = LocationEntity(
-                latLng = cache.latLng,
+                latLng = Pair(cache.lat, cache.lng),
                 distance = cache.distance,
                 address = cache.address
             )
@@ -41,7 +41,9 @@ class VenueMapper @Inject constructor() : CacheMapper<VenueModel, VenueEntity> {
             userCount = entity.userCount,
             address = entity.location.address,
             distance = entity.location.distance,
-            latLng = entity.location.latLng,
+//            latLng = entity.location.latLng,
+            lat = entity.location.latLng.first,
+            lng = entity.location.latLng.second,
             categoryId = entity.category?.id,
             catIcon = entity.category?.iconUrl,
             catTitle = entity.category?.title
