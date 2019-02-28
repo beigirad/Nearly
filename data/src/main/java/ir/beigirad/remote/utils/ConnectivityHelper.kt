@@ -10,7 +10,7 @@ object ConnectivityHelper {
         var isConnected = false
         if (connectivityManager != null) {
             val activeNetwork = connectivityManager.activeNetworkInfo
-            isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting
+            isConnected = activeNetwork != null && activeNetwork.isConnected
         }
 
         return isConnected

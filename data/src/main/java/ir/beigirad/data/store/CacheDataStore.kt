@@ -12,6 +12,6 @@ class CacheDataStore @Inject constructor(
 ) : DataStore {
 
     override fun getVenues(currentLatLng: Pair<Double, Double>): Observable<List<VenueEntity>> {
-        return cacheRepository.getVenues(currentLatLng)
+        return cacheRepository.getVenues()
     }
 }

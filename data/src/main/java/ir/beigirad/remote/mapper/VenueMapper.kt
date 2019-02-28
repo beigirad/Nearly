@@ -10,7 +10,7 @@ import javax.inject.Inject
  */
 class VenueMapper @Inject constructor() : ModelMapper<VenueSearchResponse.VenueItem, VenueEntity> {
     override fun mapFromModel(model: VenueSearchResponse.VenueItem): VenueEntity {
-        val category = model.categories?.find { it?.primary == true }
+        val category = model.categories?.find { it.primary == true }
 
         return VenueEntity(
             id = model.id,
