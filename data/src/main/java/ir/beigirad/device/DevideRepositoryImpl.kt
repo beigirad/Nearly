@@ -7,6 +7,7 @@ import ir.beigirad.data.model.GpsLocationEntity
 import ir.beigirad.data.repository.DeviceRepository
 import ir.beigirad.device.location.LocationProvider
 import ir.beigirad.device.mapper.LocationMapper
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -19,6 +20,7 @@ class DevideRepositoryImpl @Inject constructor(
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     override fun getLocation(): Observable<GpsLocationEntity> {
+        Timber.d("getLocation ")
         return locationProvider.getLocationObservable().map {
             locationMapper.mapFromModel(it)
         }

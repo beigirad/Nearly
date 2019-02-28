@@ -17,6 +17,7 @@ import ir.beigirad.domain.model.GpsLocation
 import ir.beigirad.domain.model.Venue
 import ir.beigirad.domain.model.VenueDetail
 import ir.beigirad.domain.repository.NearlyRepository
+import timber.log.Timber
 import javax.inject.Inject
 
 class DataRepository @Inject constructor(
@@ -32,12 +33,16 @@ class DataRepository @Inject constructor(
 
 ) : NearlyRepository {
     override fun getVenues(locationLatLng: Pair<Double, Double>): Observable<List<Venue>> {
+        Timber.d("getVenues ")
         return Observable.zip(
             cache.isCachedVenues().toObservable(),
             preferences.isExpiredCaches().toObservable(),
             remote.isOnline().toObservable(),
             Function3<Boolean, Boolean, Boolean, Triple<Boolean, Boolean, Boolean>>
             { isCached, isExpired, isOnline ->
+                Timber.d("getVenues: isCached $isCached")
+                Timber.d("getVenues: isExpired $isExpired")
+                Timber.d("getVenues: isOnline $isOnline")
                 Triple(isCached, isExpired, isOnline)
             }
         ).flatMap { status ->
@@ -60,11 +65,13 @@ class DataRepository @Inject constructor(
     }
 
     override fun getVenueDetail(venueId: String): Observable<VenueDetail> {
+        Timber.d("getVenueDetail ")
         return remote.getVenueDetail(venueId).map { detailMapper.mapFromEntity(it) }
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     override fun getMyLocation(): Observable<GpsLocation> {
+        Timber.d("getMyLocation ")
         return device.getLocation().map {
             gpsLocationMapper.mapFromEntity(it)
         }

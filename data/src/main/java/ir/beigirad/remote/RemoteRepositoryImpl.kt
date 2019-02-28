@@ -12,6 +12,7 @@ import ir.beigirad.remote.service.ApiService
 import ir.beigirad.remote.utils.ConnectivityHelper
 import ir.beigirad.remote.utils.HttpErrorHandler
 import ir.beigirad.remote.utils.NetworkErrorHandler
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -26,12 +27,14 @@ class RemoteRepositoryImpl @Inject constructor(
     private val context: Context
 ) : RemoteRepository {
     override fun isOnline(): Single<Boolean> {
+        Timber.d("isOnline ")
         return Single.fromCallable {
             ConnectivityHelper.isConnectedToNetwork(context)
         }
     }
 
     override fun getVenues(currentLatLng: Pair<Double, Double>): Observable<List<VenueEntity>> {
+        Timber.d("getVenues ")
         return api.searchVenues("${currentLatLng.first},${currentLatLng.second}")
             .onErrorResumeNext(NetworkErrorHandler())
             .map(HttpErrorHandler())
@@ -39,6 +42,7 @@ class RemoteRepositoryImpl @Inject constructor(
     }
 
     override fun getVenueDetail(venueId: String): Observable<VenueDetailEntity> {
+        Timber.d("getVenueDetail ")
         return api.getVenueDetail(venueId)
             .onErrorResumeNext(NetworkErrorHandler())
             .map(HttpErrorHandler())
