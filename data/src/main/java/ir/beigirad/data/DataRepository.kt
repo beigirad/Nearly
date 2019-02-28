@@ -1,13 +1,19 @@
 package ir.beigirad.data
 
+import android.Manifest
+import android.annotation.SuppressLint
+import androidx.annotation.RequiresPermission
 import io.reactivex.Observable
 import io.reactivex.functions.Function3
+import ir.beigirad.data.mapper.GpsLocationMapper
 import ir.beigirad.data.mapper.VenueDetailMapper
 import ir.beigirad.data.mapper.VenueMapper
 import ir.beigirad.data.repository.CacheRepository
+import ir.beigirad.data.repository.DeviceRepository
 import ir.beigirad.data.repository.PreferencesRepository
 import ir.beigirad.data.repository.RemoteRepository
 import ir.beigirad.data.store.DataStoreFactory
+import ir.beigirad.domain.model.GpsLocation
 import ir.beigirad.domain.model.Venue
 import ir.beigirad.domain.model.VenueDetail
 import ir.beigirad.domain.repository.NearlyRepository
@@ -18,7 +24,9 @@ class DataRepository @Inject constructor(
     private val cache: CacheRepository,
     private val remote: RemoteRepository,
     private val preferences: PreferencesRepository,
+        private val device: DeviceRepository,
 
+        private val gpsLocationMapper: GpsLocationMapper,
     private val venueMapper: VenueMapper,
     private val detailMapper: VenueDetailMapper
 
@@ -53,6 +61,13 @@ class DataRepository @Inject constructor(
 
     override fun getVenueDetail(venueId: String): Observable<VenueDetail> {
         return remote.getVenueDetail(venueId).map { detailMapper.mapFromEntity(it) }
+    }
+
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    override fun getMyLocation(): Observable<GpsLocation> {
+        return device.getLocation().map {
+            gpsLocationMapper.mapFromEntity(it)
+        }
     }
 
 }
