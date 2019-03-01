@@ -4,7 +4,6 @@ import io.reactivex.Observable
 import ir.beigirad.domain.executor.PostExecutionThread
 import ir.beigirad.domain.interactor.ObservableUseCase
 import ir.beigirad.domain.model.GpsLocation
-import ir.beigirad.domain.model.Location
 import ir.beigirad.domain.repository.NearlyRepository
 import javax.inject.Inject
 
@@ -15,8 +14,10 @@ class GetMyLocation @Inject constructor(
         private val repository: NearlyRepository,
         postExecutionThread: PostExecutionThread
 ) :
-        ObservableUseCase<GpsLocation, Nothing>(postExecutionThread) {
-    override fun buildUseCaseObservable(params: Nothing): Observable<GpsLocation> {
+    ObservableUseCase<GpsLocation, GetMyLocation.Param>(postExecutionThread) {
+    override fun buildUseCaseObservable(params: Param): Observable<GpsLocation> {
         return repository.getMyLocation()
     }
+
+    class Param
 }

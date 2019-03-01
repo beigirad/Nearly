@@ -4,7 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.observers.DisposableObserver
+import ir.beigirad.domain.interactor.usecase.GetMyLocation
 import ir.beigirad.domain.interactor.usecase.GetVenues
+import ir.beigirad.domain.model.GpsLocation
 import ir.beigirad.domain.model.Venue
 import ir.beigirad.presentation.mapper.VenueMapper
 import ir.beigirad.presentation.model.VenueView
@@ -14,6 +16,7 @@ import javax.inject.Inject
 
 class VenuesViewModel @Inject constructor(
     private val getVenues: GetVenues,
+    private val getMyLocation: GetMyLocation,
     private val venueMapper: VenueMapper
 ) : ViewModel() {
 
@@ -21,14 +24,67 @@ class VenuesViewModel @Inject constructor(
 
     override fun onCleared() {
         getVenues.dispose()
+        getMyLocation.dispose()
         super.onCleared()
     }
 
-    fun getLoads(): LiveData<Resource<List<VenueView>>> {
+    fun fetchMyLocation() {
+        venuesLiveData.postValue(
+            Resource(
+                status = ResourceState.LOADING,
+                data = venuesLiveData.value?.data,
+                message = null
+            )
+        )
+        getMyLocation.execute(LocationSubscriber(), GetMyLocation.Param())
+    }
+
+    private inner class LocationSubscriber : DisposableObserver<GpsLocation>() {
+        override fun onComplete() {}
+
+        override fun onNext(gpsLocation: GpsLocation) {
+            when (gpsLocation) {
+                is GpsLocation.Success -> {
+                    fetchVenues(gpsLocation.location.latLng)
+                }
+                is GpsLocation.Error -> {
+                    venuesLiveData.postValue(
+                        Resource(
+                            status = ResourceState.ERROR,
+                            data = venuesLiveData.value?.data,
+                            message = gpsLocation.message
+                        )
+                    )
+                }
+                is GpsLocation.Loading -> {
+                    venuesLiveData.postValue(
+                        Resource(
+                            status = ResourceState.LOADING,
+                            data = venuesLiveData.value?.data,
+                            message = null
+                        )
+                    )
+                }
+            }
+        }
+
+        override fun onError(e: Throwable) {
+            venuesLiveData.postValue(
+                Resource(
+                    status = ResourceState.ERROR,
+                    data = venuesLiveData.value?.data,
+                    message = e.localizedMessage
+                )
+            )
+        }
+
+    }
+
+    fun getVenues(): LiveData<Resource<List<VenueView>>> {
         return venuesLiveData
     }
 
-    fun fetchLoads(latLng: Pair<Double, Double>) {
+    private fun fetchVenues(latLng: Pair<Double, Double>) {
         venuesLiveData.postValue(
             Resource(
                 status = ResourceState.LOADING,
@@ -39,7 +95,7 @@ class VenuesViewModel @Inject constructor(
         getVenues.execute(VenueSubscriber(), GetVenues.Param(latLng))
     }
 
-    inner class VenueSubscriber : DisposableObserver<List<Venue>>() {
+    private inner class VenueSubscriber : DisposableObserver<List<Venue>>() {
         override fun onComplete() {
         }
 
