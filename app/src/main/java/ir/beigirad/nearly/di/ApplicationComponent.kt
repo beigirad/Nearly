@@ -5,18 +5,18 @@ import dagger.BindsInstance
 import dagger.Component
 import dagger.android.support.AndroidSupportInjectionModule
 import ir.beigirad.nearly.NearlyApplication
-import ir.beigirad.nearly.di.modules.CacheModule
-import ir.beigirad.nearly.di.modules.DataModule
-import ir.beigirad.nearly.di.modules.RemoteModule
-import ir.beigirad.nearly.di.modules.UiModule
+import ir.beigirad.nearly.di.modules.*
+import javax.inject.Singleton
 
 /**
  * Created by Farhad Beigirad on 3/1/19.
  */
+@Singleton
 @Component(
     modules = [
         AndroidSupportInjectionModule::class,
-        CacheModule::class,RemoteModule::class,
+        ApplicationModule::class,
+        CacheModule::class, RemoteModule::class, PreferencesModule::class, DeviceModule::class,
         DataModule::class,
         UiModule::class
     ]
