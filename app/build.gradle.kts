@@ -44,4 +44,33 @@ dependencies {
     implementation(SupportLibraries.design)
     implementation(SupportLibraries.constraintlayout)
 
+
+    implementation(Libraries.lifecucleRuntime)
+    implementation(Libraries.lifecycleExtensions)
+    kapt(Libraries.lifecycleCompiler)
+
+    implementation(Libraries.rxkotlin)
+    implementation(Libraries.rxAndroid)
+
+    implementation(Libraries.dagger)
+    kapt(Libraries.daggerCompiler)
+    implementation(Libraries.daggerAndroid)
+    kapt(Libraries.daggerAndroidProcessor)
+    implementation(Libraries.daggerAndroidSupport)
+
+    implementation(Libraries.multidex)
+
+    implementation(Libraries.glide)
+    kapt(Libraries.glideCompiler)
+
+    implementation(project(Modules.domain))
+    implementation(project(Modules.data))
+    implementation(project(Modules.presentation))
+
+    implementation(Libraries.room)
+    kapt(Libraries.roomCompiler)
+    implementation(Libraries.roomRx)
+
+    implementation(Libraries.stethoInterceptor)
+
 }
