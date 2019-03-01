@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Nearly</string>
+    <string name="app_title">Nearly</string>
+
+    <string name="an_error_occured">An error occurred!</string>
+    <string name="loading_data">Loading data</string>
+    <string name="no_showing_data">There is no data!</string>
+
+    <string name="press_back_twice">Press back again to quit!</string>
+    <string name="try_again">Try again</string>
+    <string name="please_wait">Please wait…</string>
+
+
 </resources>
