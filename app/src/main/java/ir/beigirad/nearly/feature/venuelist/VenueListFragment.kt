@@ -4,14 +4,25 @@ import android.Manifest
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
 import ir.beigirad.nearly.R
 import ir.beigirad.nearly.utils.runtimepermission.PermissionHelper
 import ir.beigirad.nearly.utils.runtimepermission.PermissionStatus
 import ir.beigirad.presentation.VenuesViewModel
+import ir.beigirad.presentation.model.VenueView
+import ir.beigirad.presentation.state.Resource
+import ir.beigirad.presentation.state.ResourceState
 import ir.beigirad.zeroapplication.bases.BaseFragment
+import ir.beigirad.zeroapplication.invisiable
 import ir.beigirad.zeroapplication.snack
+import ir.beigirad.zeroapplication.visiable
+import ir.beigirad.zeroapplication.widget.EndlessRecyclerViewScrollListener
+import ir.beigirad.zeroapplication.widget.StateView
+import kotlinx.android.synthetic.main.content_venue_list.*
 import kotlinx.android.synthetic.main.fragment_venue_list.*
 import timber.log.Timber
 import javax.inject.Inject
@@ -28,6 +39,9 @@ class VenueListFragment : BaseFragment() {
     @Inject
     lateinit var viewModel: VenuesViewModel
 
+    @Inject
+    lateinit var adapter: VenueAdapter
+
     override fun initVariables() {
         super.initVariables()
         AndroidSupportInjection.inject(this)
@@ -42,6 +56,24 @@ class VenueListFragment : BaseFragment() {
 
     override fun initUI() {
         super.initUI()
+        val layoutManager = LinearLayoutManager(context)
+        venuelist_ry.layoutManager = layoutManager
+        venuelist_ry.adapter = adapter
+        venuelist_ry.addItemDecoration(DividerItemDecoration(context, layoutManager.orientation))
+        venuelist_ry.addOnScrollListener(object : EndlessRecyclerViewScrollListener(layoutManager) {
+            override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
+                checkLocationPermission(false)
+            }
+
+        })
+
+        venuelist_state.setRetryListener {
+            checkLocationPermission(false)
+        }
+
+        viewModel.getVenues().observe(this, Observer {
+            handleVenues(it)
+        })
         checkLocationPermission(false)
     }
 
@@ -59,7 +91,7 @@ class VenueListFragment : BaseFragment() {
         when (it) {
             is PermissionStatus.Granted -> {
                 Timber.d("checkLocationPermission Granted")
-
+                viewModel.fetchMyLocation()
             }
             is PermissionStatus.Denied -> {
                 Timber.d("checkLocationPermission Denied!")
@@ -79,5 +111,48 @@ class VenueListFragment : BaseFragment() {
             }
         }
     }
+
+    private fun handleVenues(venues: Resource<List<VenueView>>) {
+        Timber.d("handleVenues ${venues.status}")
+        when (venues.status) {
+            ResourceState.LOADING ->
+                if (venues.hasData)
+                    venuelist_progress.visiable()
+                else {
+                    venuelist_state.setState(StateView.State.LOADING)
+                    venuelist_progress.invisiable()
+                }
+            ResourceState.SUCCESS -> {
+                refreshVenuesList(venues.data)
+
+                if (venues.hasData)
+                    venuelist_state.setState(StateView.State.SUCCESS)
+                else
+                    venuelist_state.setState(StateView.State.BLANK)
+
+                venuelist_progress.invisiable()
+            }
+            ResourceState.ERROR -> {
+                if (venues.hasData) {
+                    snack(venuelist_root, venues.message.toString(), Snackbar.LENGTH_INDEFINITE) {
+                        viewModel.fetchMyLocation()
+                    }
+                } else {
+                    venuelist_state.setErrorMessage(venues.message)
+                    venuelist_state.setState(StateView.State.ERROR)
+                }
+                venuelist_progress.invisiable()
+            }
+        }
+    }
+
+    private fun refreshVenuesList(data: List<VenueView>?) {
+        Timber.d("refreshVenuesList ${data?.size}")
+        data?.let {
+            adapter.venuesList = it.toMutableList()
+            adapter.notifyDataSetChanged()
+        }
+    }
+
 
 }
