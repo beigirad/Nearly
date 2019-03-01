@@ -10,12 +10,11 @@ import androidx.annotation.RequiresPermission
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import timber.log.Timber
-import javax.inject.Inject
 
 /**
  * Created by Farhad Beigirad on 2/28/19.
  */
-class LocationProvider @Inject constructor(context: Context) : LocationListener {
+class LocationProvider(context: Context) : LocationListener {
     private val interval = 10_000L   //ms
     private val distance = 100F      //meter
 
@@ -58,6 +57,9 @@ class LocationProvider @Inject constructor(context: Context) : LocationListener 
 
     @RequiresPermission(ACCESS_FINE_LOCATION)
     fun getLocationObservable(): Observable<LocationStatus> {
+        if (observable.hasObservers())
+            return observable
+
         return observable.doOnSubscribe {
             Timber.d("doOnDispose: add Location listener")
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, interval, distance, this)
