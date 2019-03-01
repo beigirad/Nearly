@@ -12,7 +12,7 @@ class VenueMapper @Inject constructor() : ModelMapper<VenueSearchResponse.GroupI
     override fun mapFromModel(model: VenueSearchResponse.GroupItem.GroupSubItem): VenueEntity {
         val category = model.venue.categories?.find { it.isPrimary == true }
         val tip = model.tips?.getOrNull(0)
-
+        val rate = DataUtils.getRandomRate()
         return VenueEntity(
                 id = model.venue.id,
                 primaryName = model.venue.name,
@@ -20,7 +20,7 @@ class VenueMapper @Inject constructor() : ModelMapper<VenueSearchResponse.GroupI
                     VenueEntity.CategoryEntity(
                             id = category.id ?: "",
                             title = category.name ?: "",
-                            iconUrl = UrlWrapper.wrapIcon(category.icon?.prefix, category.icon?.suffix)
+                            iconUrl = DataUtils.wrapIcon(category.icon?.prefix, category.icon?.suffix)
                     )
                 } else
                     null,
@@ -33,8 +33,9 @@ class VenueMapper @Inject constructor() : ModelMapper<VenueSearchResponse.GroupI
                 secondaryName = "",
                 description = tip?.text,
                 photoUrl = tip?.photourl,
-                ratingColor = "#" + (model.venue.ratingColor ?: "636161"),
-                rating = model.venue.rating ?: 0.0F
+                //TODO remove mock data!
+                ratingColor = "#" + (model.venue.ratingColor ?: rate.second),
+                rating = model.venue.rating ?: rate.first
         )
     }
 
