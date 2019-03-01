@@ -9,15 +9,9 @@ import javax.inject.Provider
  * Created by Farhad Beigirad on 3/1/19.
  */
 
-class ViewModelFactory :
-        ViewModelProvider.Factory {
-    private var creators: Map<Class<out ViewModel>, Provider<ViewModel>>
-
-    @Inject
-    constructor(creators: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>) {
-        this.creators = creators
-    }
-
+class ViewModelFactory @Inject constructor(
+    private val creators: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
+) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {

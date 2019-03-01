@@ -18,6 +18,7 @@ import javax.inject.Singleton
         ApplicationModule::class,
         CacheModule::class, RemoteModule::class, PreferencesModule::class, DeviceModule::class,
         DataModule::class,
+        PresentationModule::class,
         UiModule::class
     ]
 )
