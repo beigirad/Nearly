@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
 import ir.beigirad.nearly.R
 import ir.beigirad.nearly.utils.runtimepermission.PermissionHelper
@@ -62,13 +63,17 @@ class VenueListFragment : BaseFragment() {
             }
             is PermissionStatus.Denied -> {
                 Timber.d("checkLocationPermission Denied!")
-                snack(venuelist_root, "${it.permission} was denied!") {
+                snack(venuelist_root, "Location permission was denied!", Snackbar.LENGTH_INDEFINITE) {
                     checkLocationPermission(true)
                 }
             }
-            is PermissionStatus.Blocked -> {
-                Timber.d("checkLocationPermission Blocked!")
-                snack(venuelist_root, "${it.permission} was blocked!\ncheck phone Settings") {
+            is PermissionStatus.BlockedMessage -> {
+                Timber.d("handleLocationPermission ShowMessage")
+                snack(
+                    venuelist_root,
+                    "To show near locations you should grant Location permission.",
+                    Snackbar.LENGTH_INDEFINITE
+                ) {
                     checkLocationPermission(true)
                 }
             }

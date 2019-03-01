@@ -42,11 +42,7 @@ class PermissionHelper : DialogFragment() {
     private fun checkPermission(permission: String, force: Boolean) {
         if (ContextCompat.checkSelfPermission(context!!, permission) != PackageManager.PERMISSION_GRANTED) {
             if (shouldShowRequestPermissionRationale(permission) && !force) {
-                permissionLiveData.postValue(
-                        PermissionStatus.Blocked(
-                                permission
-                        )
-                )
+                permissionLiveData.postValue(PermissionStatus.BlockedMessage(permission))
                 dismiss()
             } else {
                 requestPermissions(arrayOf(permission), permissionRequestCode)
@@ -102,5 +98,5 @@ class PermissionHelper : DialogFragment() {
 sealed class PermissionStatus {
     data class Granted(val permission: String) : PermissionStatus()
     data class Denied(val permission: String) : PermissionStatus()
-    data class Blocked(val permission: String) : PermissionStatus()
+    data class BlockedMessage(val permission: String) : PermissionStatus()
 }
