@@ -46,13 +46,13 @@ class VenueListFragment : BaseFragment() {
     }
 
     private fun checkLocationPermission(force: Boolean) {
-        Timber.d("checkLocationPermission force:$force")
-        PermissionHelper.newRequest(Manifest.permission.ACCESS_FINE_LOCATION, force)
-            .apply {
-                getLiveData().observe(this, Observer {
+        Timber.d("checkLocationPermission force: $force")
+        val permissionHelper = PermissionHelper.newRequest(Manifest.permission.ACCESS_FINE_LOCATION, force)
+        permissionHelper.getLiveData().observe(this, Observer {
                     handleLocationPermission(it)
                 })
-            }.request(childFragmentManager)
+
+        permissionHelper.request(childFragmentManager)
     }
 
     private fun handleLocationPermission(it: PermissionStatus) {
