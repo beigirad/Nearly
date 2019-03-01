@@ -16,13 +16,15 @@ class VenueMapper @Inject constructor() : CacheMapper<VenueModel, VenueEntity> {
             secondaryName = cache.secondaryName,
             description = cache.description,
             photoUrl = cache.photoUrl,
-            userCount = cache.userCount,
+                vote = cache.vote,
             category = if (cache.categoryId != null && cache.catIcon != null && cache.catTitle != null)
                 VenueEntity.CategoryEntity(
                     id = cache.categoryId,
                     iconUrl = cache.catIcon,
                     title = cache.catTitle
                 ) else null,
+            ratingColor = cache.ratingColor,
+            rating = cache.rating,
             location = LocationEntity(
                 latLng = Pair(cache.lat, cache.lng),
                 distance = cache.distance,
@@ -38,7 +40,7 @@ class VenueMapper @Inject constructor() : CacheMapper<VenueModel, VenueEntity> {
             secondaryName = entity.secondaryName,
             description = entity.description,
             photoUrl = entity.photoUrl,
-            userCount = entity.userCount,
+            vote = entity.vote,
             address = entity.location.address,
             distance = entity.location.distance,
 //            latLng = entity.location.latLng,
@@ -46,6 +48,8 @@ class VenueMapper @Inject constructor() : CacheMapper<VenueModel, VenueEntity> {
             lng = entity.location.latLng.second,
             categoryId = entity.category?.id,
             catIcon = entity.category?.iconUrl,
+            rating = entity.rating,
+            ratingColor = entity.ratingColor,
             catTitle = entity.category?.title
         )
     }

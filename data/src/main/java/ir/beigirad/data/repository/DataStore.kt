@@ -1,7 +1,7 @@
 package ir.beigirad.data.repository
 
-import io.reactivex.Completable
 import io.reactivex.Observable
+import ir.beigirad.data.model.PaginationEntity
 import ir.beigirad.data.model.VenueEntity
 
 /**
@@ -9,6 +9,6 @@ import ir.beigirad.data.model.VenueEntity
  */
 interface DataStore {
 
-    fun getVenues(currentLatLng: Pair<Double, Double>): Observable<List<VenueEntity>>
+    fun getVenues(pagination: PaginationEntity): Observable<List<VenueEntity>>
 
 }

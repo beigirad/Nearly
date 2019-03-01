@@ -10,7 +10,9 @@ data class VenueView(
     val photoUrl: String?,
     val description: String?,
     val userCount: Int,
-    val location: LocationView,
+        val location: String,
+        val rating: Float,
+        val ratingColor: String,
     val category: CategoryView?
 ) {
     data class CategoryView(

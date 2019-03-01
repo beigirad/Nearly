@@ -8,6 +8,7 @@ import ir.beigirad.domain.interactor.usecase.GetMyLocation
 import ir.beigirad.domain.interactor.usecase.GetVenues
 import ir.beigirad.domain.model.GpsLocation
 import ir.beigirad.domain.model.Venue
+import ir.beigirad.domain.model.VenuePagination
 import ir.beigirad.presentation.mapper.VenueMapper
 import ir.beigirad.presentation.model.VenueView
 import ir.beigirad.presentation.state.Resource
@@ -94,7 +95,13 @@ class VenuesViewModel @Inject constructor(
                 message = null
             )
         )
-        getVenues.execute(VenueSubscriber(), GetVenues.Param(latLng))
+        getVenues.execute(VenueSubscriber(),
+                VenuePagination(
+                        latLng = latLng,
+                        radius = 2_000,
+                        limit = 15,
+                        offset = venuesLiveData.value?.data?.size ?: 0
+                ))
     }
 
     private inner class VenueSubscriber : DisposableObserver<List<Venue>>() {

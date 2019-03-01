@@ -6,6 +6,7 @@ import androidx.annotation.RequiresPermission
 import io.reactivex.Observable
 import io.reactivex.functions.Function3
 import ir.beigirad.data.mapper.GpsLocationMapper
+import ir.beigirad.data.mapper.PaginationMapper
 import ir.beigirad.data.mapper.VenueDetailMapper
 import ir.beigirad.data.mapper.VenueMapper
 import ir.beigirad.data.repository.CacheRepository
@@ -16,6 +17,7 @@ import ir.beigirad.data.store.DataStoreFactory
 import ir.beigirad.domain.model.GpsLocation
 import ir.beigirad.domain.model.Venue
 import ir.beigirad.domain.model.VenueDetail
+import ir.beigirad.domain.model.VenuePagination
 import ir.beigirad.domain.repository.NearlyRepository
 import timber.log.Timber
 import javax.inject.Inject
@@ -27,12 +29,13 @@ class DataRepository @Inject constructor(
     private val preferences: PreferencesRepository,
         private val device: DeviceRepository,
 
+        private val paginationMapper: PaginationMapper,
         private val gpsLocationMapper: GpsLocationMapper,
     private val venueMapper: VenueMapper,
     private val detailMapper: VenueDetailMapper
 
 ) : NearlyRepository {
-    override fun getVenues(locationLatLng: Pair<Double, Double>): Observable<List<Venue>> {
+    override fun getVenues(venuePagination: VenuePagination): Observable<List<Venue>> {
         Timber.d("getVenues ")
         return Observable.zip(
             cache.isCachedVenues().toObservable(),
@@ -47,14 +50,16 @@ class DataRepository @Inject constructor(
             }
         ).flatMap { status ->
             factory.getDataStore(status.first, status.second, status.third)
-                .getVenues(locationLatLng)
+                    .getVenues(
+                            paginationMapper.mapToEntity(venuePagination)
+                    )
                 .doAfterNext {
                     if (!factory.isFromCache(status.first, status.second, status.third))
                         cache.saveVenuesList(it)
                             .doOnComplete {
                                 preferences.saveCacheTime(System.currentTimeMillis()).subscribe()
                                 //TODO did not handle search cache location!
-                                preferences.saveCurrentLocation(locationLatLng).subscribe()
+//                                preferences.saveCurrentLocation(locationLatLng).subscribe()
                             }
                             .subscribe()
                 }

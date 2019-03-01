@@ -18,7 +18,9 @@ class VenueMapper @Inject constructor(
             photoUrl = entity.photoUrl,
             primaryName = entity.primaryName,
             secondaryName = entity.secondaryName,
-            userCount = entity.userCount,
+                vote = entity.vote,
+                rating = entity.rating,
+                ratingColor = entity.ratingColor,
             category = entity.category?.let { categoryMapper.mapFromEntity(it) },
             location = entity.location.let { locationMapper.mapFromEntity(it) }
         )

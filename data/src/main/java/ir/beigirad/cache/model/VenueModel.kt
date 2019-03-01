@@ -14,7 +14,7 @@ class VenueModel(
     val secondaryName: String?,
     val photoUrl: String?,
     val description: String?,
-    val userCount: Int,
+        val vote: Int,
 //    val latLng: Pair<Double, Double>,
     val lat: Double,
     val lng: Double,
@@ -22,5 +22,7 @@ class VenueModel(
     val distance: Int,
     val categoryId: String?,
     val catIcon: String?,
+        val rating: Float,
+        val ratingColor: String,
     val catTitle: String?
 )

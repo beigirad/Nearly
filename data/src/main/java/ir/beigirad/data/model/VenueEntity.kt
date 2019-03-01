@@ -9,8 +9,10 @@ data class VenueEntity(
     val secondaryName: String?,
     val photoUrl: String?,
     val description: String?,
-    val userCount: Int,
+        val vote: Int,
     val location: LocationEntity,
+        val rating: Float,
+        val ratingColor: String,
     val category: CategoryEntity?
 ) {
     data class CategoryEntity(

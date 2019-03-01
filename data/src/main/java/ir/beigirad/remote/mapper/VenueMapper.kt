@@ -8,30 +8,33 @@ import javax.inject.Inject
 /**
  * Created by Farhad Beigirad on 2/27/19.
  */
-class VenueMapper @Inject constructor() : ModelMapper<VenueSearchResponse.VenueItem, VenueEntity> {
-    override fun mapFromModel(model: VenueSearchResponse.VenueItem): VenueEntity {
-        val category = model.categories?.find { it.primary == true }
+class VenueMapper @Inject constructor() : ModelMapper<VenueSearchResponse.GroupItem.GroupSubItem, VenueEntity> {
+    override fun mapFromModel(model: VenueSearchResponse.GroupItem.GroupSubItem): VenueEntity {
+        val category = model.venue.categories?.find { it.isPrimary == true }
+        val tip = model.tips?.getOrNull(0)
 
         return VenueEntity(
-            id = model.id,
-            primaryName = model.name,
-            category = if (category != null) {
-                VenueEntity.CategoryEntity(
-                    id = category.id ?: "",
-                    title = category.name ?: "",
-                    iconUrl = "${category.icon?.prefix}${category.icon?.suffix}"
-                )
-            } else
-                null,
-            location = LocationEntity(
-                latLng = Pair(model.location.lat, model.location.lng),
-                distance = model.location.distance,
-                address = model.location.address
-            ),
-            userCount = 0,
-            secondaryName = "",
-            description = "",
-            photoUrl = ""
+                id = model.venue.id,
+                primaryName = model.venue.name,
+                category = if (category != null) {
+                    VenueEntity.CategoryEntity(
+                            id = category.id ?: "",
+                            title = category.name ?: "",
+                            iconUrl = UrlWrapper.wrapIcon(category.icon?.prefix, category.icon?.suffix)
+                    )
+                } else
+                    null,
+                location = LocationEntity(
+                        latLng = Pair(model.venue.location.lat, model.venue.location.lng),
+                        distance = model.venue.location.distance,
+                        address = model.venue.location.address
+                ),
+                vote = 0,
+                secondaryName = "",
+                description = tip?.text,
+                photoUrl = tip?.photourl,
+                ratingColor = "#" + (model.venue.ratingColor ?: "636161"),
+                rating = model.venue.rating ?: 0.0F
         )
     }
 

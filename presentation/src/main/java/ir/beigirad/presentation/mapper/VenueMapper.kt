@@ -1,7 +1,6 @@
 package ir.beigirad.presentation.mapper
 
 import ir.beigirad.domain.model.Venue
-import ir.beigirad.presentation.model.LocationView
 import ir.beigirad.presentation.model.VenueView
 import javax.inject.Inject
 
@@ -16,12 +15,10 @@ class VenueMapper @Inject constructor() : Mapper<VenueView, Venue> {
             primaryName = domain.primaryName,
             description = domain.description,
             photoUrl = domain.photoUrl,
-            location = LocationView(
-                latLng = domain.location.latLng,
-                distance = domain.location.distance,
-                address = domain.location.address
-            ),
-            userCount = domain.userCount,
+                location = "< ${domain.location.distance}m | ${domain.location.address}",
+                userCount = domain.vote,
+                ratingColor = domain.ratingColor,
+                rating = domain.rating,
             category = domain.category?.let {
                 VenueView.CategoryView(
                     id = it.id,

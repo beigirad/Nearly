@@ -3,6 +3,7 @@ package ir.beigirad.remote
 import android.content.Context
 import io.reactivex.Observable
 import io.reactivex.Single
+import ir.beigirad.data.model.PaginationEntity
 import ir.beigirad.data.model.VenueDetailEntity
 import ir.beigirad.data.model.VenueEntity
 import ir.beigirad.data.repository.RemoteRepository
@@ -33,12 +34,24 @@ class RemoteRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getVenues(currentLatLng: Pair<Double, Double>): Observable<List<VenueEntity>> {
+    override fun getVenues(pagination: PaginationEntity): Observable<List<VenueEntity>> {
         Timber.d("getVenues ")
-        return api.searchVenues("${currentLatLng.first},${currentLatLng.second}")
+        return api.searchVenues(
+                latLng = "${pagination.latLng.first},${pagination.latLng.second}",
+                radius = pagination.radius,
+                limit = pagination.limit,
+                offset = pagination.offset,
+                sortByDistance = 1
+        )
             .onErrorResumeNext(NetworkErrorHandler())
             .map(HttpErrorHandler())
-            .map { it.venues?.map { item -> venueMapper.mapFromModel(item) } }
+                .map { response ->
+                    response.groups?.flatMap { groupItem ->
+                        groupItem.items.map { groupSub ->
+                            venueMapper.mapFromModel(groupSub)
+                        }
+                    }
+                }
     }
 
     override fun getVenueDetail(venueId: String): Observable<VenueDetailEntity> {
