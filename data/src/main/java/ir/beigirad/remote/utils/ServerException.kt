@@ -20,7 +20,7 @@ class ServerException private constructor(message: String?, private val kind: Ki
     companion object {
 
         fun httpError(response: Response<*>): ServerException {
-            val message = response.code().toString() + " " + response.message()
+            val message = "Error: " + response.code().toString() + " " + response.message()
             return ServerException(message, Kind.HTTP)
         }
 

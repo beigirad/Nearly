@@ -42,8 +42,8 @@ class ApiServiceFactory {
         auth: AuthenticationInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
+            .addNetworkInterceptor(stetho)
             .addInterceptor(auth)
-            .addInterceptor(stetho)
 //            .connectTimeout(30, TimeUnit.SECONDS)
 //            .readTimeout(30, TimeUnit.SECONDS)
             .build()
