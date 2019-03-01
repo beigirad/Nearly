@@ -12,6 +12,7 @@ import ir.beigirad.presentation.mapper.VenueMapper
 import ir.beigirad.presentation.model.VenueView
 import ir.beigirad.presentation.state.Resource
 import ir.beigirad.presentation.state.ResourceState
+import timber.log.Timber
 import javax.inject.Inject
 
 class VenuesViewModel @Inject constructor(
@@ -69,6 +70,7 @@ class VenuesViewModel @Inject constructor(
         }
 
         override fun onError(e: Throwable) {
+            Timber.d(e)
             venuesLiveData.postValue(
                 Resource(
                     status = ResourceState.ERROR,
@@ -110,6 +112,7 @@ class VenuesViewModel @Inject constructor(
         }
 
         override fun onError(e: Throwable) {
+            Timber.d(e)
             venuesLiveData.postValue(
                 Resource(
                     ResourceState.ERROR,

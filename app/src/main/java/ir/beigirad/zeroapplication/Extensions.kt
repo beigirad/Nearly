@@ -99,7 +99,7 @@ fun <T : FrameLayout> T.isViewVisible(view: View): Boolean {
 }
 
 inline fun <T : Fragment> T.withArgs(argBuilder: Bundle.() -> Unit) =
-    this.apply { Bundle().apply(argBuilder) }
+    this.apply { arguments = Bundle().apply(argBuilder) }
 
 fun <T> List<T>.random(): T? = if (this.isNotEmpty()) get(Random().nextInt(size)) else null
 

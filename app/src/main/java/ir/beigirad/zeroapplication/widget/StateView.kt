@@ -125,6 +125,7 @@ class StateView : RelativeLayout {
 
     fun setErrorMessage(message: String?) {
         this._errorText = message
+        bindValues()
     }
 
     private fun setDefault() {
