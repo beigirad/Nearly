@@ -15,6 +15,10 @@ class GetMyLocation @Inject constructor(
         postExecutionThread: PostExecutionThread
 ) :
     ObservableUseCase<GpsLocation, GetMyLocation.Param>(postExecutionThread) {
+
+    override val beMultiThread: Boolean
+        get() = false   // Cause getting location should be on UiThread!
+
     override fun buildUseCaseObservable(params: Param): Observable<GpsLocation> {
         return repository.getMyLocation()
     }

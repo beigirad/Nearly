@@ -14,10 +14,17 @@ abstract class ObservableUseCase<T, Params>(
 
     abstract fun buildUseCaseObservable(params: Params): Observable<T>
 
+    protected open val beMultiThread = true
+
     fun execute(observer: DisposableObserver<T>, params: Params) {
-        val observable = this.buildUseCaseObservable(params)
-            .subscribeOn(Schedulers.io())
-            .observeOn(postExecutionThread.scheduler)
+        val observable =
+            if (beMultiThread)
+                this.buildUseCaseObservable(params)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(postExecutionThread.scheduler)
+            else
+                this.buildUseCaseObservable(params)
+
         addDisposable(observable.subscribeWith(observer))
     }
 
