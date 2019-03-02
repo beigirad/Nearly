@@ -38,7 +38,6 @@ class VenueListFragment : BaseFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject
     lateinit var viewModel: VenuesViewModel
-
     @Inject
     lateinit var adapter: VenueAdapter
 
@@ -59,25 +58,27 @@ class VenueListFragment : BaseFragment() {
         val layoutManager = LinearLayoutManager(context)
         venuelist_ry.layoutManager = layoutManager
         venuelist_ry.adapter = adapter
+        venuelist_ry.itemAnimator = null
         venuelist_ry.addItemDecoration(DividerItemDecoration(context, layoutManager.orientation))
         venuelist_ry.addOnScrollListener(object : EndlessRecyclerViewScrollListener(layoutManager) {
             override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
-                checkLocationPermission(false)
+                Timber.d("onLoadMore $page")
+                checkLocationPermission()
             }
-
         })
 
         venuelist_state.setRetryListener {
-            checkLocationPermission(false)
+            checkLocationPermission()
         }
+
 
         viewModel.getVenues().observe(this, Observer {
             handleVenues(it)
         })
-        checkLocationPermission(false)
+        checkLocationPermission()
     }
 
-    private fun checkLocationPermission(force: Boolean) {
+    private fun checkLocationPermission(force: Boolean = false) {
         Timber.d("checkLocationPermission force: $force")
         val permissionHelper = PermissionHelper.newRequest(Manifest.permission.ACCESS_FINE_LOCATION, force)
         permissionHelper.getLiveData().observe(this, Observer {
@@ -149,8 +150,7 @@ class VenueListFragment : BaseFragment() {
     private fun refreshVenuesList(data: List<VenueView>?) {
         Timber.d("refreshVenuesList ${data?.size}")
         data?.let {
-            adapter.venuesList = it.toMutableList()
-            adapter.notifyDataSetChanged()
+            adapter.submitList(it)
         }
     }
 
