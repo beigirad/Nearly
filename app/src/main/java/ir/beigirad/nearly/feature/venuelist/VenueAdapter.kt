@@ -17,7 +17,9 @@ import javax.inject.Inject
 /**
  * Created by Farhad Beigirad on 3/1/19.
  */
-class VenueAdapter @Inject constructor() : ListAdapter<VenueView, BaseVH<VenueView>>(diffUtilCallback) {
+class VenueAdapter @Inject constructor(
+        var listener: IVenueAdapterListener
+) : ListAdapter<VenueView, BaseVH<VenueView>>(diffUtilCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseVH<VenueView> {
         return VenueVH(parent.inflate(R.layout.item_venue))
@@ -27,12 +29,18 @@ class VenueAdapter @Inject constructor() : ListAdapter<VenueView, BaseVH<VenueVi
         holder.bindTo(getItem(position))
     }
 
-    inner class VenueVH(view: View) : BaseVH<VenueView>(view) {
+    private inner class VenueVH(view: View) : BaseVH<VenueView>(view) {
         private val titleTv = itemView.item_venue_title
         private val categoryTv = itemView.item_venue_category
         private val ratingTv = itemView.item_venue_rate
         private val distanceTv = itemView.item_venue_distance
         private val img = itemView.item_venue_img
+
+        init {
+            itemView.setOnClickListener {
+                listener.onSelectVenue(getItem(adapterPosition))
+            }
+        }
 
         override fun bindTo(item: VenueView) {
             item.apply {
@@ -62,6 +70,10 @@ class VenueAdapter @Inject constructor() : ListAdapter<VenueView, BaseVH<VenueVi
                 return oldItem == newItem
             }
         }
+    }
+
+    interface IVenueAdapterListener {
+        fun onSelectVenue(selectedVenue: VenueView)
     }
 
 }

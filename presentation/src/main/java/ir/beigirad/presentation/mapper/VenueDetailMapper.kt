@@ -24,7 +24,8 @@ class VenueDetailMapper @Inject constructor() : Mapper<VenueDetailView, VenueDet
             follower = domain.follower,
             likes = domain.likes,
             rating = domain.rating,
-            ratingColor = domain.ratingColor,
+                rating100 = (domain.rating * 10).toInt(),
+                ratingColor = domain.ratingColor,
             photos = domain.photos?.map {
                 VenueDetailView.PhotoView(
                     id = it.id,

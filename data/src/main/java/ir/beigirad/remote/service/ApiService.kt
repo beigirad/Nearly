@@ -19,7 +19,7 @@ interface ApiService {
                      @Query("sortByDistance") sortByDistance: Int
     ): Observable<Response<ResponseParent<VenueSearchResponse>>>
 
-    @GET("venues/VENUE_ID")
+    @GET("venues/{VENUE_ID}")
     fun getVenueDetail(@Path("VENUE_ID") venueId: String): Observable<Response<ResponseParent<VenueDetailResponse>>>
 
 }

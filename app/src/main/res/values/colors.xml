@@ -21,5 +21,6 @@
     <color name="ripple_color">#64000000</color>
 
     <color name="errorColor">#ff0004</color>
+    <color name="gray">#C9C9C9</color>
 
 </resources>

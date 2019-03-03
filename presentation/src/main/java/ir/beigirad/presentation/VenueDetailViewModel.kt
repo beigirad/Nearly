@@ -24,7 +24,7 @@ class VenueDetailViewModel @Inject constructor(
         super.onCleared()
     }
 
-    fun getLoads(): LiveData<Resource<VenueDetailView>> {
+    fun getDetail(): LiveData<Resource<VenueDetailView>> {
         return venuesLiveData
     }
 

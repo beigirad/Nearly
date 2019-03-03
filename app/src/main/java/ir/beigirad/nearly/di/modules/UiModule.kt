@@ -5,6 +5,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import ir.beigirad.domain.executor.PostExecutionThread
 import ir.beigirad.nearly.di.UiThread
+import ir.beigirad.nearly.feature.detail.VenueDetailFragment
 import ir.beigirad.nearly.feature.venuelist.VenueListFragment
 
 /**
@@ -19,4 +20,7 @@ abstract class UiModule {
 
     @ContributesAndroidInjector
     abstract fun contributeVenueListFragment(): VenueListFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeVenueDetailFragment(): VenueDetailFragment
 }

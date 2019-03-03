@@ -9,6 +9,7 @@ data class VenueDetailView(
     val secondaryName: String?,
     val photoUrl: String?,
     val description: String?,
+    val rating100: Int,
     val rating: Float,
     val ratingColor: String,
     val likes: Int,

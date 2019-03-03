@@ -7,6 +7,7 @@ import dagger.MapKey
 import dagger.Module
 import dagger.multibindings.IntoMap
 import ir.beigirad.nearly.di.ViewModelFactory
+import ir.beigirad.presentation.VenueDetailViewModel
 import ir.beigirad.presentation.VenuesViewModel
 import kotlin.reflect.KClass
 
@@ -23,7 +24,13 @@ abstract class PresentationModule {
     @Binds
     @IntoMap
     @ViewModelKey(VenuesViewModel::class)
-    abstract fun bindSplashViewModel(splashViewModel: VenuesViewModel): ViewModel
+    abstract fun bindVenueListViewModel(splashViewModel: VenuesViewModel): ViewModel
+
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(VenueDetailViewModel::class)
+    abstract fun bindVenueDtailModel(splashViewModel: VenueDetailViewModel): ViewModel
 
 
 }

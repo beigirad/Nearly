@@ -1,6 +1,7 @@
 package ir.beigirad.nearly.feature.venuelist
 
 import android.Manifest
+import android.content.Context
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -30,7 +31,11 @@ import javax.inject.Inject
 /**
  * Created by Farhad Beigirad on 3/1/19.
  */
-class VenueListFragment : BaseFragment() {
+class VenueListFragment : BaseFragment(), VenueAdapter.IVenueAdapterListener {
+    override fun onSelectVenue(selectedVenue: VenueView) {
+        interaction.onSelectVenue(selectedVenue)
+    }
+
     override val childView: Int
         get() = R.layout.fragment_venue_list
 
@@ -38,13 +43,27 @@ class VenueListFragment : BaseFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject
     lateinit var viewModel: VenuesViewModel
-    @Inject
+
     lateinit var adapter: VenueAdapter
+
+    lateinit var interaction: IVenueListInteraction
 
     override fun initVariables() {
         super.initVariables()
         AndroidSupportInjection.inject(this)
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(VenuesViewModel::class.java)
+    }
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        interaction = when {
+            context is IVenueListInteraction ->
+                context
+            parentFragment is IVenueListInteraction ->
+                parentFragment as IVenueListInteraction
+            else ->
+                throw IllegalArgumentException("did not implement IVenueListInteraction")
+        }
     }
 
     companion object {
@@ -57,6 +76,7 @@ class VenueListFragment : BaseFragment() {
         super.initUI()
         val layoutManager = LinearLayoutManager(context)
         venuelist_ry.layoutManager = layoutManager
+        adapter = VenueAdapter(this)
         venuelist_ry.adapter = adapter
         venuelist_ry.itemAnimator = null
         venuelist_ry.addItemDecoration(DividerItemDecoration(context, layoutManager.orientation))

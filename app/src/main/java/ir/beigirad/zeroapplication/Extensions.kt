@@ -16,6 +16,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
@@ -29,7 +30,10 @@ fun ViewGroup.inflate(resource: Int): View {
 
 fun ImageView.loadUrl(url: String?) {
     Glide.with(this)
-        .applyDefaultRequestOptions(RequestOptions().placeholder(R.mipmap.ic_launcher))
+            .applyDefaultRequestOptions(
+                    RequestOptions().placeholder(R.mipmap.ic_launcher)
+                            .centerCrop()
+            )
         .load(url)
         .into(this)
 }
