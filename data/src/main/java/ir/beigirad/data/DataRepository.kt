@@ -1,14 +1,14 @@
 package ir.beigirad.data
 
 import android.Manifest
-import android.location.Location
 import androidx.annotation.RequiresPermission
 import io.reactivex.Observable
-import io.reactivex.functions.Function4
-import ir.beigirad.data.mapper.GpsLocationMapper
+import io.reactivex.functions.BiFunction
+import ir.beigirad.data.mapper.LocationMapper
 import ir.beigirad.data.mapper.PaginationMapper
 import ir.beigirad.data.mapper.VenueDetailMapper
 import ir.beigirad.data.mapper.VenueMapper
+import ir.beigirad.data.model.GpsLocationEntity
 import ir.beigirad.data.repository.CacheRepository
 import ir.beigirad.data.repository.DeviceRepository
 import ir.beigirad.data.repository.PreferencesRepository
@@ -30,57 +30,35 @@ class DataRepository @Inject constructor(
     private val device: DeviceRepository,
 
     private val paginationMapper: PaginationMapper,
-    private val gpsLocationMapper: GpsLocationMapper,
+    private val locationMapper: LocationMapper,
     private val venueMapper: VenueMapper,
     private val detailMapper: VenueDetailMapper
 
 ) : NearlyRepository {
-
-    private fun calculateDistance(start: Pair<Double, Double>, end: Pair<Double, Double>): Int {
-        val location1 = Location("").apply {
-            latitude = start.first
-            longitude = start.second
-        }
-        val location2 = Location("").apply {
-            latitude = end.first
-            longitude = end.second
-        }
-        return location1.distanceTo(location2).toInt()
-    }
 
     override fun getVenues(venuePagination: VenuePagination): Observable<List<Venue>> {
         Timber.d("getVenues ")
         return Observable.zip(
             cache.isCachedVenues(venuePagination.offset).toObservable(),
             preferences.isExpiredCaches(Const.expirationTime).toObservable(),
-            remote.isOnline().toObservable(),
-            preferences.hasChangedLocation(venuePagination.latLng, Const.minDistance).toObservable(),
-            Function4<Boolean, Boolean, Boolean, Boolean, DataStoreFactory.DataStoreStatus>
-            { isCached, isExpired, isOnline, changedLocation ->
-                DataStoreFactory.DataStoreStatus(isCached, isExpired, isOnline, changedLocation)
-                    .apply {
-                        Timber.d("getVenues $this")
-                    }
+            BiFunction<Boolean, Boolean, DataStoreFactory.DataStoreConditions>
+            { isCached, isExpired ->
+                DataStoreFactory.DataStoreConditions(
+                    isCached = isCached,
+                    cacheExpired = isExpired,
+                    firstPage = venuePagination.offset == 0
+                )
             })
-
-            .flatMap { status ->
-                dataStoreFactory.getDataStore(status)
-                    .getVenues(
-                        paginationMapper.mapToEntity(venuePagination)
-                    )
+            .flatMap { conditions ->
+                dataStoreFactory.getDataStore(conditions)
+                    .getVenues(paginationMapper.mapToEntity(venuePagination))
                     .doAfterNext {
-                        if (!dataStoreFactory.isFromCache(status)) {
-
-                            if (status.cacheExpired || status.changedLocation)
-                                cache.invalidateVenues().subscribe()
-
-                            cache.saveVenuesList(it)
-                                .doOnComplete {
-                                    preferences.saveCacheTime(System.currentTimeMillis()).subscribe()
-                                    preferences.saveCurrentLocation(venuePagination.latLng).subscribe()
-                                }
-                                .subscribe()
-                        }
+                        //                        if (!dataStoreFactory.isFromCache(conditions)) {
+//                            cache.invalidateVenues()
+//                                .andThen(cache.saveVenuesList(it))
+//                                .andThen(preferences.saveCacheTime(System.currentTimeMillis()))
+//                                .subscribe()
+//                        }
                     }
                     .map { venuesList ->
                         venuesList.map {
@@ -98,9 +76,33 @@ class DataRepository @Inject constructor(
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     override fun getMyLocation(): Observable<GpsLocation> {
         Timber.d("getMyLocation ")
-        return device.getLocation().map {
-            gpsLocationMapper.mapFromEntity(it)
-        }
+        return device.getLocation()
+            .flatMap { gpsLocation ->
+
+                //  TODO using integrated mapper
+                when (gpsLocation) {
+                    is GpsLocationEntity.Success -> {
+                        preferences
+                            .hasChangedLocation(gpsLocation.location.latLng, Const.minDistance)
+                            .toObservable()
+                            .doOnNext { hasChanged ->
+                                if (hasChanged)
+                                    preferences.saveCurrentLocation(gpsLocation.location.latLng).subscribe()
+                            }
+                            .map { hasChanged ->
+                                GpsLocation.Success(gpsLocation.location.latLng, hasChanged)
+                            }
+                    }
+                    is GpsLocationEntity.Error ->
+                        Observable.just(
+                            GpsLocation.Error(gpsLocation.message)
+                        )
+                    is GpsLocationEntity.Loading ->
+                        Observable.just(
+                            GpsLocation.Loading(gpsLocation.lastLocation?.let { locationMapper.mapFromEntity(it) })
+                        )
+                }
+            }
     }
 
 }

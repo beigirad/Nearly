@@ -35,4 +35,8 @@ abstract class ObservableUseCase<T, Params>(
     private fun addDisposable(disposable: Disposable) {
         disposables.add(disposable)
     }
+
+    fun hasSubscriber(): Boolean {
+        return disposables.size() > 0
+    }
 }

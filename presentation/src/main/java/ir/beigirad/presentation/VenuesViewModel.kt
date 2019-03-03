@@ -23,16 +23,17 @@ class VenuesViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val venuesLiveData = MutableLiveData<Resource<List<VenueView>>>()
-    // should handle with PagingLibrary
+    //  TODO should handle with PagingLibrary
     private val venueList = mutableListOf<VenueView>()
-    private var subscribedLocation = false
-    private var lastLocation: Pair<Double, Double>? = null
+
+    private val lastLoc: Pair<Double, Double>? = null
+
+    private var initRequest = true
+
 
     override fun onCleared() {
         getVenues.dispose()
         getMyLocation.dispose()
-        locationSubscriber.dispose()
-        Timber.d("onCleared $subscribedLocation")
         super.onCleared()
     }
 
@@ -46,34 +47,26 @@ class VenuesViewModel @Inject constructor(
             )
         )
 
-        if (!subscribedLocation)
-            getMyLocation.execute(locationSubscriber, GetMyLocation.Param())
+        if (getMyLocation.hasSubscriber().not())
+            getMyLocation.execute(LocationSubscriber(), GetMyLocation.Param())
         else
-            lastLocation?.let { fetchVenues(it) }
+            lastLoc?.let { fetchVenues(it, false) }
     }
 
-    private var locationSubscriber = LocationSubscriber()
-
     private inner class LocationSubscriber : DisposableObserver<GpsLocation>() {
-        override fun onStart() {
-            super.onStart()
-            subscribedLocation = true
-        }
-
         override fun onComplete() {
-            subscribedLocation = false
+            Timber.d("LocationSubscriber onComplete")
         }
 
         override fun onNext(gpsLocation: GpsLocation) {
             Timber.d("LocationSubscriber $gpsLocation")
             when (gpsLocation) {
                 is GpsLocation.Success -> {
+                    Timber.d("onNext locationChanged:${gpsLocation.locationChanged}")
 
-                    if (lastLocation?.first != gpsLocation.location.latLng.first || lastLocation?.second == gpsLocation.location.latLng.second)
-                        venueList.clear()
-
-                    lastLocation = gpsLocation.location.latLng
-                    lastLocation?.let { fetchVenues(it) }
+                    if (gpsLocation.locationChanged || initRequest)
+                        fetchVenues(gpsLocation.location, true)
+                    initRequest = false
                 }
                 is GpsLocation.Error -> {
                     venuesLiveData.postValue(
@@ -113,7 +106,7 @@ class VenuesViewModel @Inject constructor(
         return venuesLiveData
     }
 
-    private fun fetchVenues(latLng: Pair<Double, Double>) {
+    private fun fetchVenues(latLng: Pair<Double, Double>, locationChanged: Boolean) {
         Timber.d("fetchVenues ")
         venuesLiveData.postValue(
             Resource(
@@ -122,6 +115,10 @@ class VenuesViewModel @Inject constructor(
                 message = null
             )
         )
+
+        if (locationChanged)
+            venueList.clear()
+
         getVenues.execute(VenueSubscriber(),
                 VenuePagination(
                         latLng = latLng,
@@ -136,7 +133,7 @@ class VenuesViewModel @Inject constructor(
         }
 
         override fun onNext(t: List<Venue>) {
-            Timber.d("VenueSubscriber ${t.size}")
+            Timber.d("VenueSubscriber onNext ${t.size}")
             venueList.addAll(t.map { venueMapper.mapToView(it) })
 
             venuesLiveData.postValue(

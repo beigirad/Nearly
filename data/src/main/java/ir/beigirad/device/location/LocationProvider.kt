@@ -62,8 +62,8 @@ class LocationProvider(context: Context) : LocationListener {
             Timber.d("doOnDispose: add Location listener")
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                Const.getLocationInterval,
-                Const.minDistance,
+                Const.gpsInterval,
+                Const.gpsMinDistance,
                 this
             )
         }.doOnDispose {
