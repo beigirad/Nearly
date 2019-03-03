@@ -20,7 +20,7 @@ abstract class VenueDao {
     @Query("DELETE FROM VenueModel")
     abstract fun clearLoaders()
 
-    @Query("SELECT Count(*) > 0 FROM VenueModel")
-    abstract fun isCachedLoaders(): Single<Boolean>
+    @Query("SELECT Count(*) > :offset FROM VenueModel")
+    abstract fun isCachedLoaders(offset: Int): Single<Boolean>
 
 }

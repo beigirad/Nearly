@@ -8,12 +8,12 @@ import io.reactivex.Single
  */
 interface PreferencesRepository {
 
-    fun isExpiredCaches(): Single<Boolean>
+    fun isExpiredCaches(expireTime: Int): Single<Boolean>
 
     fun saveCacheTime(timeMillisecond: Long): Completable
 
-    fun getCurrentLocation(): Single<Pair<Double, Double>>
-
     fun saveCurrentLocation(currentLatLng: Pair<Double, Double>): Completable
+
+    fun hasChangedLocation(currentLatLng: Pair<Double, Double>, minDistance: Float): Single<Boolean>
 
 }

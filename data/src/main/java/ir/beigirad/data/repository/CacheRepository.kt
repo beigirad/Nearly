@@ -12,10 +12,10 @@ interface CacheRepository {
 
     fun saveVenuesList(venues:List<VenueEntity>): Completable
 
-    fun clearVenues(): Completable
+    fun invalidateVenues(): Completable
 
     fun getVenues(): Observable<List<VenueEntity>>
 
-    fun isCachedVenues(): Single<Boolean>
+    fun isCachedVenues(offset: Int): Single<Boolean>
 
 }

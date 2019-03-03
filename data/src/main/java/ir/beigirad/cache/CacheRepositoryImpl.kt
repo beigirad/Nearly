@@ -25,8 +25,8 @@ class CacheRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun clearVenues(): Completable {
-        Timber.d("clearVenues ")
+    override fun invalidateVenues(): Completable {
+        Timber.d("invalidateVenues ")
         return Completable.fromCallable {
             db.venueDao().clearLoaders()
         }
@@ -39,9 +39,9 @@ class CacheRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun isCachedVenues(): Single<Boolean> {
+    override fun isCachedVenues(offset: Int): Single<Boolean> {
         Timber.d("isCachedVenues ")
-        return db.venueDao().isCachedLoaders()
+        return db.venueDao().isCachedLoaders(offset)
     }
 
 }

@@ -1,11 +1,11 @@
 package ir.beigirad.preferences
 
 import android.content.SharedPreferences
+import android.location.Location
 import io.reactivex.Completable
 import io.reactivex.Single
 import ir.beigirad.data.repository.PreferencesRepository
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 /**
@@ -14,13 +14,32 @@ import javax.inject.Inject
 class PreferencesRepositoryImpl @Inject constructor(
     private val sharedPreferences: SharedPreferences
 ) : PreferencesRepository {
-    override fun isExpiredCaches(): Single<Boolean> {
+    override fun hasChangedLocation(currentLatLng: Pair<Double, Double>, minDistance: Float): Single<Boolean> {
+        val lt = sharedPreferences.getString(Const.LAST_LOCATION_LAT,"")
+        val ln = sharedPreferences.getString(Const.LAST_LOCATION_LNG,"")
+        return Single.fromCallable {
+
+            val lat = lt?.toDoubleOrNull() ?: 0.0
+            val lng = ln?.toDoubleOrNull() ?: 0.0
+            val lastLocation = Location("").apply {
+                latitude = lat
+                longitude = lng
+            }
+            val currentLocation = Location("").apply {
+                latitude = currentLatLng.first
+                longitude = currentLatLng.second
+            }
+            currentLocation.distanceTo(lastLocation) > minDistance
+        }
+    }
+
+    override fun isExpiredCaches(expireTime: Int): Single<Boolean> {
         Timber.d("isExpiredCaches ")
         return Single.fromCallable {
             val lastCacheTime = sharedPreferences.getLong(Const.LAST_CACHE_TIME, 0)
             val cacheTime = System.currentTimeMillis() - lastCacheTime
 
-            TimeUnit.MINUTES.convert(cacheTime, TimeUnit.MILLISECONDS) > Const.CACHE_EXPIRE_LIMIT
+            cacheTime > expireTime
         }
     }
 
@@ -31,21 +50,12 @@ class PreferencesRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getCurrentLocation(): Single<Pair<Double, Double>> {
-        Timber.d("getCurrentLocation ")
-        return Single.fromCallable {
-            val lat = sharedPreferences.getString(Const.LAST_LOCATION_LAT, "0.0")?.toDoubleOrNull()?:0.0
-            val lng = sharedPreferences.getString(Const.LAST_LOCATION_LNG, "0.0")?.toDoubleOrNull()?:0.0
-            Pair(lat, lng)
-        }
-    }
-
     override fun saveCurrentLocation(currentLatLng: Pair<Double, Double>): Completable {
         Timber.d("saveCurrentLocation ")
         return Completable.fromCallable {
             sharedPreferences.edit()
                 .putString(Const.LAST_LOCATION_LAT, currentLatLng.first.toString())
-                .putFloat(Const.LAST_LOCATION_LNG, currentLatLng.second.toFloat())
+                .putString(Const.LAST_LOCATION_LNG, currentLatLng.second.toString())
                 .apply()
         }
     }

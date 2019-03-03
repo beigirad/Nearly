@@ -9,15 +9,13 @@ import android.os.Bundle
 import androidx.annotation.RequiresPermission
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
+import ir.beigirad.data.Const
 import timber.log.Timber
 
 /**
  * Created by Farhad Beigirad on 2/28/19.
  */
 class LocationProvider(context: Context) : LocationListener {
-    private val interval = 10_000L   //ms
-    private val distance = 100F      //meter
-
     private val locationManager: LocationManager =
             context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
@@ -62,7 +60,12 @@ class LocationProvider(context: Context) : LocationListener {
 
         return observable.doOnSubscribe {
             Timber.d("doOnDispose: add Location listener")
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, interval, distance, this)
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                Const.getLocationInterval,
+                Const.minDistance,
+                this
+            )
         }.doOnDispose {
             Timber.d("doOnDispose: removed Location update")
             locationManager.removeUpdates(this)

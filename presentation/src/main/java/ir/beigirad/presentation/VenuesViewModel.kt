@@ -23,37 +23,63 @@ class VenuesViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val venuesLiveData = MutableLiveData<Resource<List<VenueView>>>()
+    // should handle with PagingLibrary
+    private val venueList = mutableListOf<VenueView>()
+    private var subscribedLocation = false
+    private var lastLocation: Pair<Double, Double>? = null
 
     override fun onCleared() {
         getVenues.dispose()
         getMyLocation.dispose()
+        locationSubscriber.dispose()
+        Timber.d("onCleared $subscribedLocation")
         super.onCleared()
     }
 
     fun fetchMyLocation() {
+        Timber.d("fetchMyLocation ")
         venuesLiveData.postValue(
             Resource(
                 status = ResourceState.LOADING,
-                data = venuesLiveData.value?.data,
+                data = venueList,
                 message = null
             )
         )
-        getMyLocation.execute(LocationSubscriber(), GetMyLocation.Param())
+
+        if (!subscribedLocation)
+            getMyLocation.execute(locationSubscriber, GetMyLocation.Param())
+        else
+            lastLocation?.let { fetchVenues(it) }
     }
 
+    private var locationSubscriber = LocationSubscriber()
+
     private inner class LocationSubscriber : DisposableObserver<GpsLocation>() {
-        override fun onComplete() {}
+        override fun onStart() {
+            super.onStart()
+            subscribedLocation = true
+        }
+
+        override fun onComplete() {
+            subscribedLocation = false
+        }
 
         override fun onNext(gpsLocation: GpsLocation) {
+            Timber.d("LocationSubscriber $gpsLocation")
             when (gpsLocation) {
                 is GpsLocation.Success -> {
-                    fetchVenues(gpsLocation.location.latLng)
+
+                    if (lastLocation?.first != gpsLocation.location.latLng.first || lastLocation?.second == gpsLocation.location.latLng.second)
+                        venueList.clear()
+
+                    lastLocation = gpsLocation.location.latLng
+                    lastLocation?.let { fetchVenues(it) }
                 }
                 is GpsLocation.Error -> {
                     venuesLiveData.postValue(
                         Resource(
                             status = ResourceState.ERROR,
-                            data = venuesLiveData.value?.data,
+                            data = venueList,
                             message = gpsLocation.message
                         )
                     )
@@ -62,7 +88,7 @@ class VenuesViewModel @Inject constructor(
                     venuesLiveData.postValue(
                         Resource(
                             status = ResourceState.LOADING,
-                            data = venuesLiveData.value?.data,
+                            data = venueList,
                             message = null
                         )
                     )
@@ -75,7 +101,7 @@ class VenuesViewModel @Inject constructor(
             venuesLiveData.postValue(
                 Resource(
                     status = ResourceState.ERROR,
-                    data = venuesLiveData.value?.data,
+                    data = venueList,
                     message = e.localizedMessage
                 )
             )
@@ -88,10 +114,11 @@ class VenuesViewModel @Inject constructor(
     }
 
     private fun fetchVenues(latLng: Pair<Double, Double>) {
+        Timber.d("fetchVenues ")
         venuesLiveData.postValue(
             Resource(
                 status = ResourceState.LOADING,
-                data = venuesLiveData.value?.data,
+                data = venueList,
                 message = null
             )
         )
@@ -100,7 +127,7 @@ class VenuesViewModel @Inject constructor(
                         latLng = latLng,
                         radius = 2_000,
                         limit = 15,
-                        offset = venuesLiveData.value?.data?.size ?: 0
+                    offset = venueList.size
                 ))
     }
 
@@ -109,10 +136,13 @@ class VenuesViewModel @Inject constructor(
         }
 
         override fun onNext(t: List<Venue>) {
+            Timber.d("VenueSubscriber ${t.size}")
+            venueList.addAll(t.map { venueMapper.mapToView(it) })
+
             venuesLiveData.postValue(
                 Resource(
                     ResourceState.SUCCESS,
-                    t.map { venueMapper.mapToView(it) },
+                    venueList,
                     null
                 )
             )
@@ -123,7 +153,7 @@ class VenuesViewModel @Inject constructor(
             venuesLiveData.postValue(
                 Resource(
                     ResourceState.ERROR,
-                    null,
+                    venueList,
                     e.localizedMessage
                 )
             )

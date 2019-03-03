@@ -151,6 +151,7 @@ class VenueListFragment : BaseFragment() {
         Timber.d("refreshVenuesList ${data?.size}")
         data?.let {
             adapter.submitList(it)
+            adapter.notifyDataSetChanged()
         }
     }
 
