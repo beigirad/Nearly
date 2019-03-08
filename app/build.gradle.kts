@@ -32,6 +32,43 @@ android {
             targetCompatibility = JavaVersion.VERSION_1_8
         }
     }
+
+    project.property("keystore.dir")?.also { dir ->
+        Properties().also { it ->
+            it.load(FileInputStream(file(dir)))
+
+            signingConfigs {
+
+                create("debugKey") {
+                    storeFile = file(it["dStoreFile"]!!)
+                    storePassword = it["dStorePassword"] as String
+                    keyAlias = it["dKeyAlias"] as String
+                    keyPassword = it["dKeyPassword"] as String
+                }
+
+                create("releaseKey") {
+                    storeFile = file(it["rStoreFile"]!!)
+                    storePassword = it["rStorePassword"] as String
+                    keyAlias = it["rKeyAlias"] as String
+                    keyPassword = it["rKeyPassword"] as String
+                }
+            }
+        }
+    }
+
+    buildTypes {
+        getByName("release") {
+            isShrinkResources = true
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("debugKey")
+        }
+
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+            signingConfig = signingConfigs.getByName("debugKey")
+        }
+    }
 }
 
 dependencies {
