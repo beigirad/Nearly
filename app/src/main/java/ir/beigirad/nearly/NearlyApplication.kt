@@ -9,6 +9,7 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import dagger.android.support.HasSupportFragmentInjector
 import ir.beigirad.nearly.di.DaggerApplicationComponent
+import ir.beigirad.nearly.utils.logging.DebugTree
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -40,7 +41,7 @@ class NearlyApplication : Application(), HasActivityInjector, HasSupportFragment
             .build()
             .inject(this)
 
-        Timber.plant(Timber.DebugTree())
+        Timber.plant(DebugTree())
 
         Stetho.initializeWithDefaults(this)
 
