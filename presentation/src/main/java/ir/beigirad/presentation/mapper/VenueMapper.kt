@@ -15,7 +15,7 @@ class VenueMapper @Inject constructor() : Mapper<VenueView, Venue> {
             primaryName = domain.primaryName,
             description = domain.description,
             photoUrl = domain.photoUrl,
-                location = "< ${domain.location.distance}m | ${domain.location.address}",
+                location = "< ${domain.location.distance}m | ${domain.location.address.orEmpty()}",
                 userCount = domain.vote,
                 ratingColor = domain.ratingColor,
                 rating = domain.rating,

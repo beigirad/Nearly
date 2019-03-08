@@ -21,7 +21,6 @@ class LocationProvider(context: Context) : LocationListener {
 
 
     override fun onLocationChanged(location: Location) {
-        Timber.d("onLocationChanged: $location")
         observable.onNext(LocationStatus.Success(location))
     }
 
@@ -45,7 +44,7 @@ class LocationProvider(context: Context) : LocationListener {
         var location: Location? = null
         locationManager.getProviders(true).forEach {
             val lastKnownLocation = locationManager.getLastKnownLocation(it)
-            if (location == null || lastKnownLocation.accuracy < location!!.accuracy)
+            if (location == null || lastKnownLocation.accuracy < location?.accuracy ?: 1000F)
                 location = lastKnownLocation
         }
         return location

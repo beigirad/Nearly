@@ -38,6 +38,7 @@ class DataRepository @Inject constructor(
 
     override fun getVenues(venuePagination: VenuePagination): Observable<List<Venue>> {
         Timber.d("getVenues ")
+        val isFirstPage = venuePagination.offset == 0
         return Observable.zip(
             cache.isCachedVenues(venuePagination.offset).toObservable(),
             preferences.isExpiredCaches(Const.expirationTime).toObservable(),
@@ -46,19 +47,24 @@ class DataRepository @Inject constructor(
                 DataStoreFactory.DataStoreConditions(
                     isCached = isCached,
                     cacheExpired = isExpired,
-                    firstPage = venuePagination.offset == 0
+                        firstPage = isFirstPage
                 )
             })
             .flatMap { conditions ->
                 dataStoreFactory.getDataStore(conditions)
                     .getVenues(paginationMapper.mapToEntity(venuePagination))
                     .doAfterNext {
-                        //                        if (!dataStoreFactory.isFromCache(conditions)) {
-//                            cache.invalidateVenues()
-//                                .andThen(cache.saveVenuesList(it))
-//                                .andThen(preferences.saveCacheTime(System.currentTimeMillis()))
-//                                .subscribe()
-//                        }
+                        if (!dataStoreFactory.isFromCache(conditions)) {
+                            if (isFirstPage)
+                                cache.invalidateVenues()
+                                        .andThen(cache.saveVenuesList(it))
+                                        .andThen(preferences.saveCacheTime(System.currentTimeMillis()))
+                                        .subscribe()
+                            else
+                                cache.saveVenuesList(it)
+                                        .andThen(preferences.saveCacheTime(System.currentTimeMillis()))
+                                        .subscribe()
+                        }
                     }
                     .map { venuesList ->
                         venuesList.map {

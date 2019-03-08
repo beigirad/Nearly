@@ -26,7 +26,7 @@ class VenuesViewModel @Inject constructor(
     //  TODO should handle with PagingLibrary
     private val venueList = mutableListOf<VenueView>()
 
-    private val lastLoc: Pair<Double, Double>? = null
+    private var lastLocation: Pair<Double, Double>? = null
 
     private var initRequest = true
 
@@ -50,7 +50,7 @@ class VenuesViewModel @Inject constructor(
         if (getMyLocation.hasSubscriber().not())
             getMyLocation.execute(LocationSubscriber(), GetMyLocation.Param())
         else
-            lastLoc?.let { fetchVenues(it, false) }
+            lastLocation?.let { fetchVenues(it, false) }
     }
 
     private inner class LocationSubscriber : DisposableObserver<GpsLocation>() {
@@ -66,7 +66,9 @@ class VenuesViewModel @Inject constructor(
 
                     if (gpsLocation.locationChanged || initRequest)
                         fetchVenues(gpsLocation.location, true)
+
                     initRequest = false
+                    lastLocation = gpsLocation.location
                 }
                 is GpsLocation.Error -> {
                     venuesLiveData.postValue(
