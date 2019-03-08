@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
+import ir.beigirad.nearly.IntentHelper
 import ir.beigirad.nearly.R
 import ir.beigirad.presentation.VenueDetailViewModel
 import ir.beigirad.presentation.model.VenueDetailView
@@ -91,14 +92,21 @@ class VenueDetailFragment : BaseFragment() {
     private fun bindDetail(data: VenueDetailView?) {
         Timber.d("bindDetail $data")
 
-        data?.let {
-            detail_img.loadUrl(it.photoUrl)
-            detail_prg.progress = it.rating100
-            detail_rating.text = it.rating.toString()
-            detail_title.text = it.primaryName
-            detail_follower.text = it.follower.toString()
-            detail_likes.text = it.likes.toString()
+        data?.run {
+            detail_img.loadUrl(photoUrl)
+            detail_prg.progress = rating100
+            detail_rating.text = rating.toString()
+            detail_rate.text = rating.toString()
+            detail_title.text = primaryName
+            detail_follower.text = follower.toString()
+            detail_likes.text = likes.toString()
 
+            detail_call.setOnClickListener {
+//                IntentHelper.dialTo(context!!, this.phone)
+            }
+            detail_direction.setOnClickListener {
+                IntentHelper.directTo(context!!, this.location.latLng)
+            }
         }
 
     }
