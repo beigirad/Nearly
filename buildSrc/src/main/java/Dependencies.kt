@@ -53,7 +53,7 @@ object Versions {
     val rxJava = "2.2.0"
     val rxkotlin = "2.3.0"
     val rxAndroid = "2.1.0"
-    val okhttp = "3.13.1"
+    val okhttp = "3.12.1"
     val retrofit = "2.4.0"
     val loggingInterceptor = "3.11.0"
     val stethoInterceptor = "1.5.0"
